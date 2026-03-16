@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
-const BACKEND = API.replace('/api', '');
+const API = import.meta.env.VITE_API_URL || '/api';
+const BACKEND = API === '/api' ? '' : API.replace('/api', '');
 
 export default function ProfileImageUpload({ onUpdate }) {
   const { dbUser, setDbUser } = useAuth();

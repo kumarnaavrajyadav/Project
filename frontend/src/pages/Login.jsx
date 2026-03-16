@@ -4,7 +4,7 @@ import { auth, provider, signInWithPopup } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const API = import.meta.env.VITE_API_URL || '/api';
 
 export default function Login() {
   const { syncWithBackend } = useAuth();

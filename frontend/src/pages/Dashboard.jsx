@@ -7,8 +7,8 @@ import ChatArea from '../components/ChatArea';
 import ProfileImageUpload from '../components/ProfileImageUpload';
 import ReferralCard from '../components/ReferralCard';
 
-const ENDPOINT = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const ENDPOINT = (import.meta.env.VITE_API_URL || '/api').replace('/api', '');
+const API = import.meta.env.VITE_API_URL || '/api';
 
 export default function Dashboard() {
   const { dbUser, logout } = useAuth();

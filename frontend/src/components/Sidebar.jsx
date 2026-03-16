@@ -6,6 +6,8 @@ import { IoMdPersonAdd } from 'react-icons/io';
 import { MdCheck, MdClose } from 'react-icons/md';
 import ThemeToggle from './ThemeToggle';
 
+const API = import.meta.env.VITE_API_URL || '/api';
+
 export default function Sidebar({ onSelectChat }) {
   const { dbUser, logout } = useAuth();
   const [friends, setFriends] = useState([]);
@@ -25,7 +27,7 @@ export default function Sidebar({ onSelectChat }) {
 
   const fetchProfile = async () => {
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/users/profile`, config);
+      const { data } = await axios.get(`${API}/users/profile`, config);
       setFriends(data.friends || []);
     } catch (error) {
       console.error('Error fetching friends', error);
@@ -34,7 +36,7 @@ export default function Sidebar({ onSelectChat }) {
 
   const fetchRequests = async () => {
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/friends/requests`, config);
+      const { data } = await axios.get(`${API}/friends/requests`, config);
       setRequests(data);
     } catch (error) {
       console.error('Error fetching requests', error);
@@ -45,7 +47,7 @@ export default function Sidebar({ onSelectChat }) {
     e.preventDefault();
     if (!searchQuery) return;
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/users/search?q=${searchQuery}`, config);
+      const { data } = await axios.get(`${API}/users/search?q=${searchQuery}`, config);
       setSearchResults(data);
       setActiveTab('search');
     } catch (error) {

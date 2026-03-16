@@ -21,4 +21,28 @@ const getMessages = async (req, res) => {
   }
 };
 
-module.exports = { getMessages };
+// @desc    Send a message to a friend
+// @route   POST /api/messages
+// @access  Private
+const sendMessage = async (req, res) => {
+  const { receiverId, content } = req.body;
+  const currentUserId = req.user._id;
+
+  if (!receiverId || !content) {
+    return res.status(400).json({ message: 'Receiver ID and content are required' });
+  }
+
+  try {
+    const newMessage = await Message.create({
+      sender: currentUserId,
+      receiver: receiverId,
+      content,
+    });
+
+    res.status(201).json(newMessage);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+module.exports = { getMessages, sendMessage };

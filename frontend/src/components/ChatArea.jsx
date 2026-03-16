@@ -79,23 +79,19 @@ export default function ChatArea({ chat, socket }) {
     setShowEmoji(false);
 
     try {
-      // Typically you'd save to DB here via API endpoint then emit via socket.
-      // For this implementation, let's pretend we have a POST /messages/:friendId route 
-      // but since we didn't add it in the backend, we just construct message and emit.
-      // In a real app, always save to DB securely.
-      const msgData = {
-        sender: dbUser._id,
-        receiver: chat._id,
-        content: newMessage,
-        createdAt: new Date()
-      };
+      // Call the API we just created
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/messages`,
+        { receiverId: chat._id, content: newMessage },
+        config
+      );
       
-      setMessages([...messages, msgData]);
+      setMessages([...messages, data]);
       setNewMessage('');
       
-      socket.emit('new message', msgData);
+      socket.emit('new message', data);
     } catch (error) {
-      console.error('Failed to send message');
+      console.error('Failed to send message:', error);
     }
   };
 

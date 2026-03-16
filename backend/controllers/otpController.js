@@ -58,7 +58,11 @@ const sendOtp = async (req, res) => {
       return res.json({ message: 'OTP sent to your email' });
     } catch (err) {
       console.error('Email send error:', err.message);
-      return res.status(500).json({ message: 'Failed to send email OTP', error: err.message });
+      console.log(`[DEV FALLBACK] Email OTP for ${contact}: ${otp}`);
+      return res.json({ 
+        message: 'OTP generated (Email failed, check server logs)',
+        devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined
+      });
     }
   }
 

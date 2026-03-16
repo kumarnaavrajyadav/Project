@@ -80,13 +80,19 @@ const sendOtp = async (req, res) => {
       await twilioClient.messages.create({
         body: `Your FriendConnect OTP: ${otp}`,
         from: from,
-        to: contact.startsWith('+') ? contact : `+91${contact}`, // Assume +91 if no prefix
+        to: contact.startsWith('+') ? contact : `+91${contact}`,
       });
 
       return res.json({ message: 'OTP sent to your phone' });
     } catch (err) {
-      console.error('SMS send error:', err.message);
-      return res.status(500).json({ message: 'Failed to send SMS OTP', error: err.message });
+      console.error('Twilio SMS error:', err.message);
+      // Fallback: If Twilio fails (e.g. unverified number, invalid creds),
+      // we still log the OTP so the developer isn't locked out, and return 200.
+      console.log(`[DEV FALLBACK] SMS OTP for ${contact}: ${otp}`);
+      return res.json({ 
+        message: 'OTP generated (Twilio failed, check server logs)',
+        devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined
+      });
     }
   }
 

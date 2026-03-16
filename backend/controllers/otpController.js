@@ -63,14 +63,31 @@ const sendOtp = async (req, res) => {
   }
 
   if (type === 'sms') {
-    // For production: integrate Twilio here
-    // const twilioClient = require('twilio')(process.env.TWILIO_SID, process.env.TWILIO_TOKEN);
-    // await twilioClient.messages.create({ body: `Your FriendConnect OTP: ${otp}`, from: process.env.TWILIO_FROM, to: contact });
-    console.log(`[DEV] SMS OTP for ${contact}: ${otp}`);
-    return res.json({
-      message: 'OTP generated (SMS not configured)',
-      devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined,
-    });
+    try {
+      const sid = process.env.TWILIO_SID;
+      const token = process.env.TWILIO_TOKEN;
+      const from = process.env.TWILIO_FROM;
+
+      if (!sid || !token || !from) {
+        console.log(`[DEV] SMS OTP for ${contact}: ${otp} (Twilio not configured)`);
+        return res.json({
+          message: 'OTP generated (SMS not configured — check server logs)',
+          devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined,
+        });
+      }
+
+      const twilioClient = require('twilio')(sid, token);
+      await twilioClient.messages.create({
+        body: `Your FriendConnect OTP: ${otp}`,
+        from: from,
+        to: contact.startsWith('+') ? contact : `+91${contact}`, // Assume +91 if no prefix
+      });
+
+      return res.json({ message: 'OTP sent to your phone' });
+    } catch (err) {
+      console.error('SMS send error:', err.message);
+      return res.status(500).json({ message: 'Failed to send SMS OTP', error: err.message });
+    }
   }
 
   return res.status(400).json({ message: 'Invalid type. Use "email" or "sms"' });

@@ -42,7 +42,6 @@ export default function Login() {
     try {
       const res = await axios.post(`${API}/users/send-otp`, { contact: trimmed, type: otpType });
       // In dev mode, OTP is returned but not shown on screen - check browser console
-      if (res.data.devOtp) console.log(`[DEV] OTP for ${trimmed}:`, res.data.devOtp);
       setMode('otp');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send OTP');

@@ -175,7 +175,7 @@ export default function Login() {
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl py-3.5 font-semibold hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-70">
               {loading ? 'Verifying...' : 'Verify OTP ✓'}
             </button>
-            <button type="button" onClick={() => { setMode(otpType === 'email' ? 'email' : 'phone'); setOtp(''); setDevOtp(''); setError(''); }}
+            <button type="button" onClick={() => { setMode(otpType === 'email' ? 'email' : 'phone'); setOtp(''); setError(''); }}
               className="w-full text-sm text-gray-500 hover:text-blue-500">← Resend OTP</button>
           </form>
         )}

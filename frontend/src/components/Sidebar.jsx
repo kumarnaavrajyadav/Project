@@ -15,7 +15,7 @@ export default function Sidebar({ onSelectChat }) {
   const [activeTab, setActiveTab] = useState('friends'); // friends, search, requests
 
   const config = {
-    headers: { Authorization: `Bearer \${localStorage.getItem('token')}` }
+    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
   };
 
   useEffect(() => {
@@ -77,11 +77,17 @@ export default function Sidebar({ onSelectChat }) {
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <img 
-            src={dbUser?.profilePicture || 'https://via.placeholder.com/40'} 
-            alt="Profile" 
-            className="w-10 h-10 rounded-full object-cover border-2 border-blue-500"
-          />
+          {dbUser?.profilePicture ? (
+            <img
+              src={dbUser.profilePicture.startsWith('/uploads/') ? `http://localhost:5001${dbUser.profilePicture}` : dbUser.profilePicture}
+              alt="Profile"
+              className="w-10 h-10 rounded-full object-cover border-2 border-blue-500"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm border-2 border-blue-500">
+              {dbUser?.fullName ? dbUser.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : '?'}
+            </div>
+          )}
           <div className="hidden sm:block">
             <h3 className="font-semibold text-gray-900 dark:text-white text-sm">{dbUser?.fullName}</h3>
             <p className="text-xs text-gray-500 dark:text-gray-400">@{dbUser?.username}</p>
@@ -138,8 +144,14 @@ export default function Sidebar({ onSelectChat }) {
                   className="flex items-center gap-3 p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl cursor-pointer transition-colors"
                 >
                   <div className="relative">
-                    <img src={friend.profilePicture || 'https://via.placeholder.com/40'} className="w-12 h-12 rounded-full object-cover" />
-                    {friend.isOnline && <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></span>}
+                    {friend.profilePicture ? (
+                      <img src={friend.profilePicture.startsWith('/uploads/') ? `http://localhost:5001${friend.profilePicture}` : friend.profilePicture} className="w-12 h-12 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                        {friend.fullName?.[0]?.toUpperCase() || '?'}
+                      </div>
+                    )}
+                    {friend.isOnline && <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full" />}
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{friend.fullName}</h4>
@@ -156,7 +168,13 @@ export default function Sidebar({ onSelectChat }) {
             {searchResults.map(user => (
               <div key={user._id} className="flex items-center justify-between p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl transition-colors">
                 <div className="flex items-center gap-3">
-                  <img src={user.profilePicture || 'https://via.placeholder.com/40'} className="w-10 h-10 rounded-full" />
+                  {user.profilePicture ? (
+                    <img src={user.profilePicture.startsWith('/uploads/') ? `http://localhost:5001${user.profilePicture}` : user.profilePicture} className="w-10 h-10 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
+                      {user.fullName?.[0]?.toUpperCase() || '?'}
+                    </div>
+                  )}
                   <div>
                     <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{user.fullName}</h4>
                   </div>
@@ -181,7 +199,13 @@ export default function Sidebar({ onSelectChat }) {
               requests.map(req => (
                 <div key={req._id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                   <div className="flex items-center gap-3">
-                    <img src={req.sender.profilePicture || 'https://via.placeholder.com/40'} className="w-10 h-10 rounded-full" />
+                    {req.sender.profilePicture ? (
+                      <img src={req.sender.profilePicture.startsWith('/uploads/') ? `http://localhost:5001${req.sender.profilePicture}` : req.sender.profilePicture} className="w-10 h-10 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center text-white font-bold text-sm">
+                        {req.sender.fullName?.[0]?.toUpperCase() || '?'}
+                      </div>
+                    )}
                     <div>
                       <h4 className="font-semibold text-gray-900 dark:text-white text-sm">{req.sender.fullName}</h4>
                     </div>

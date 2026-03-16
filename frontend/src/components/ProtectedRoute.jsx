@@ -3,18 +3,21 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function ProtectedRoute() {
-  const { currentUser, dbUser } = useAuth();
+  const { dbUser, loading } = useAuth();
 
-  // If there's no firebase user logged in at all, redirect to login
-  if (!currentUser) {
+  // Still loading auth state — don't redirect yet
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // dbUser works for BOTH Google and Email/Phone OTP users
+  if (!dbUser) {
     return <Navigate to="/login" replace />;
   }
 
-  // If firebase user exists but not registered in backend, redirect to register
-  if (currentUser && !dbUser) {
-    return <Navigate to="/register" replace />;
-  }
-
-  // Allow access to protected route content
   return <Outlet />;
 }

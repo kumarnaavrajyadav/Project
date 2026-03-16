@@ -1,29 +1,29 @@
 const express = require('express');
 const router = express.Router();
-const { authUser, searchUsers, getUserProfile } = require('../controllers/userController');
+const {
+  registerUser, loginUser, searchUsers, getUserProfile,
+  firebaseAuthSync, uploadProfilePicture, getReferralStats
+} = require('../controllers/userController');
+const { sendOtp, verifyOtp, completeOtpRegistration } = require('../controllers/otpController');
 const { protect } = require('../middleware/auth');
-const admin = require('../config/firebase');
+const upload = require('../middleware/upload');
 
-// Special middleware for registration/login
-// We don't use 'protect' because 'protect' assumes user already exists in MongoDB
-const verifyFirebaseToken = async (req, res, next) => {
-  let token;
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    try {
-      token = req.headers.authorization.split(' ')[1];
-      const decodedToken = await admin.auth().verifyIdToken(token);
-      req.firebaseUser = decodedToken;
-      next();
-    } catch (error) {
-      res.status(401).json({ message: 'Not authorized, invalid Firebase token' });
-    }
-  } else {
-    res.status(401).json({ message: 'Not authorized, no token' });
-  }
-};
+// Firebase OAuth sync (Google)
+router.post('/firebase-auth', firebaseAuthSync);
 
-router.post('/auth', verifyFirebaseToken, authUser);
+// Local auth
+router.post('/register', registerUser);
+router.post('/login', loginUser);
+
+// Backend OTP (email / SMS)
+router.post('/send-otp', sendOtp);
+router.post('/verify-otp', verifyOtp);
+router.post('/complete-otp-registration', completeOtpRegistration);
+
+// Protected routes
 router.get('/search', protect, searchUsers);
 router.get('/profile', protect, getUserProfile);
+router.get('/referral-stats', protect, getReferralStats);
+router.put('/profile/picture', protect, upload.single('profilePicture'), uploadProfilePicture);
 
 module.exports = router;

@@ -15,7 +15,7 @@ export default function ChatArea({ chat, socket }) {
   const messagesEndRef = useRef(null);
 
   const config = {
-    headers: { Authorization: `Bearer \${localStorage.getItem('token')}` }
+    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
   };
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function ChatArea({ chat, socket }) {
 
   const fetchMessages = async () => {
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/messages/${chat._id}`, config);
+      const { data } = await axios.get(`http://localhost:5001/api/messages/${chat._id}`, config);
       setMessages(data);
     } catch (error) {
       console.error(error);
@@ -81,7 +81,7 @@ export default function ChatArea({ chat, socket }) {
     try {
       // Call the API we just created
       const { data } = await axios.post(
-        `${import.meta.env.VITE_API_URL}/messages`,
+        `http://localhost:5001/api/messages`,
         { receiverId: chat._id, content: newMessage },
         config
       );
@@ -115,7 +115,13 @@ export default function ChatArea({ chat, socket }) {
     <div className="flex-1 flex flex-col bg-[#f0f2f5] dark:bg-[#0b141a] transition-colors relative">
       {/* Chat Header */}
       <div className="h-16 px-4 bg-gray-100 dark:bg-[#202c33] border-b border-gray-200 dark:border-gray-800 flex items-center gap-4 z-10 w-full">
-        <img src={chat.profilePicture || 'https://via.placeholder.com/40'} className="w-10 h-10 rounded-full object-cover" />
+        {chat.profilePicture ? (
+          <img src={chat.profilePicture.startsWith('/uploads/') ? `http://localhost:5001${chat.profilePicture}` : chat.profilePicture} className="w-10 h-10 rounded-full object-cover" />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+            {chat.fullName?.[0]?.toUpperCase() || '?'}
+          </div>
+        )}
         <div>
           <h2 className="font-semibold text-gray-900 dark:text-white">{chat.fullName}</h2>
           <p className="text-xs text-green-500">
@@ -125,20 +131,28 @@ export default function ChatArea({ chat, socket }) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-cover bg-center" style={{ backgroundImage: "url('https://i.ibb.co/3s1f9b0/chat-bg.png')", opacity: isDarkMode ? 0.3 : 0.8 }}>
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar relative" style={{ backgroundColor: isDarkMode ? '#0b141a' : '#efeae2' }}>
+        {/* CSS dot pattern background — no external image dependency */}
+        <div className="absolute inset-0 pointer-events-none opacity-30" style={{
+          backgroundImage: isDarkMode
+            ? 'radial-gradient(circle, #ffffff18 1px, transparent 1px)'
+            : 'radial-gradient(circle, #00000018 1px, transparent 1px)',
+          backgroundSize: '20px 20px'
+        }} />
+        <div className="relative z-10 space-y-4">
         {messages.map((m, i) => {
           const isOwn = m.sender === dbUser._id;
           return (
             <div key={i} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
               <div 
-                className={`max-w-[70%] px-4 py-2 rounded-xl shadow-sm relative ${
+                className={`max-w-[70%] px-4 py-2 rounded-xl shadow-sm ${
                   isOwn 
                     ? 'bg-[#d9fdd3] dark:bg-[#005c4b] text-gray-900 dark:text-white rounded-tr-none' 
                     : 'bg-white dark:bg-[#202c33] text-gray-900 dark:text-white rounded-tl-none'
                 }`}
               >
-                <p className="text-sm leading-relaxed whitespace-pre-wrap word-break-all">{m.content}</p>
-                <span className="text-[10px] text-gray-500 dark:text-gray-400 float-right mt-1 ml-4 pt-1 flex items-center items-end h-full">
+                <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{m.content}</p>
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 float-right mt-1 ml-4 pt-1">
                   {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
@@ -146,6 +160,7 @@ export default function ChatArea({ chat, socket }) {
           );
         })}
         <div ref={messagesEndRef} />
+        </div>
       </div>
 
       {/* Input Area */}

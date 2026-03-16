@@ -19,10 +19,6 @@
       "dest": "backend/index.js"
     },
     {
-      "src": "/uploads/(.*)",
-      "dest": "backend/index.js"
-    },
-    {
       "src": "/assets/(.*)",
       "dest": "/frontend/assets/$1"
     },
